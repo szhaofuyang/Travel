@@ -70,9 +70,10 @@ with st.expander("➕ 添加新计划", expanded=False):
 
 places = get_all_places(user_id, status='plan')
 if places:
+    # 地图标题改为“计划目的地”，高度 40vh
+    st.markdown('<h3>🗺️ 计划目的地</h3>', unsafe_allow_html=True)
     m = generate_map(places, highlight_status='plan')
-    st.markdown('<h3>🗺️ 计划路线</h3>', unsafe_allow_html=True)
-    st_folium(m, width='100%', height=400, returned_objects=[])
+    st_folium(m, width='100%', height='40vh', returned_objects=[])
 
     st.divider()
     st.markdown('<h3>📋 计划列表</h3>', unsafe_allow_html=True)
@@ -86,7 +87,7 @@ if places:
                         <div>
                             <span class="name">{p['name']}</span>
                             <span class="city">📍 {p['city']}</span>
-                            <span style="font-size:0.8rem;color:#6e6e73;margin-left:10px;">
+                            <span style="font-size:0.75rem;color:#6e6e73;margin-left:10px;">
                                 {p['start_date']} ~ {p['end_date']}
                             </span>
                         </div>
@@ -94,7 +95,7 @@ if places:
                 """, unsafe_allow_html=True)
             with col_b:
                 total = p['budget_food'] + p['budget_accommodation'] + p['budget_transport_big'] + p['budget_transport_small'] + p['budget_ticket']
-                st.markdown(f'<span style="font-weight:600;">¥ {total:,.0f}</span>', unsafe_allow_html=True)
+                st.markdown(f'<span class="budget">¥ {total:,.0f}</span>', unsafe_allow_html=True)
             with col_c:
                 if st.button("查看", key=f"view_plan_{p['id']}"):
                     st.query_params['id'] = p['id']

@@ -8,7 +8,7 @@ from utils.theme_utils import get_theme_css
 
 st.set_page_config(page_title="旅游预算 · 首页", page_icon="✈️", layout="wide", initial_sidebar_state="collapsed")
 
-# 加载静态样式（基础样式）
+# 加载静态样式
 with open('static/style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
@@ -17,7 +17,7 @@ if 'user_id' not in st.session_state:
     st.session_state.user_id = None
     st.session_state.username = None
 
-# 侧边栏（登录/注册 + 主题）
+# 侧边栏
 with st.sidebar:
     st.markdown("### 👤 用户中心")
     if st.session_state.user_id:
@@ -69,20 +69,19 @@ with st.sidebar:
     st.session_state.theme = theme
     st.session_state.bg_color = bg_color
 
-# 应用主题 CSS（立即生效）
+# 应用主题
 theme = st.session_state.get('theme', '浅色')
 bg_color = st.session_state.get('bg_color', None)
 css = get_theme_css(theme, bg_color)
 st.markdown(css, unsafe_allow_html=True)
 
-# 未登录时阻断
 if not st.session_state.user_id:
     st.warning("请先在左侧边栏登录或注册，以查看您的旅行计划。")
     st.stop()
 
 # 主体
 st.markdown('<h1 style="text-align:center;">✈️ 我的旅行计划</h1>', unsafe_allow_html=True)
-st.markdown(f'<p style="text-align:center;color:#6e6e73;font-size:1.2rem;">用户：{st.session_state.username}</p>', unsafe_allow_html=True)
+st.markdown(f'<p style="text-align:center;color:#6e6e73;font-size:0.9rem;">用户：{st.session_state.username}</p>', unsafe_allow_html=True)
 st.divider()
 
 places = get_all_places(st.session_state.user_id)
@@ -94,14 +93,14 @@ with col1:
     st.markdown(f"""
         <div class="app-card" style="text-align:center;">
             <h3>📌 计划去</h3>
-            <p style="font-size:2.5rem;font-weight:600;margin:0;">{len(plan_places)}</p>
+            <p>{len(plan_places)}</p>
         </div>
     """, unsafe_allow_html=True)
 with col2:
     st.markdown(f"""
         <div class="app-card" style="text-align:center;">
             <h3>✅ 已去过</h3>
-            <p style="font-size:2.5rem;font-weight:600;margin:0;">{len(visited_places)}</p>
+            <p>{len(visited_places)}</p>
         </div>
     """, unsafe_allow_html=True)
 with col3:
@@ -109,7 +108,7 @@ with col3:
     st.markdown(f"""
         <div class="app-card" style="text-align:center;">
             <h3>💰 总预算</h3>
-            <p style="font-size:2.5rem;font-weight:600;margin:0;">¥ {total_budget:,.0f}</p>
+            <p>¥ {total_budget:,.0f}</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -194,11 +193,11 @@ with col_exp2:
 
 st.divider()
 
-# 地图
+# 地图（高度设为 50vh）
 st.markdown('<h2>🗺️ 足迹地图</h2>', unsafe_allow_html=True)
 if places:
     m = generate_map(places, highlight_status=None)
-    st_folium(m, width='100%', height=500, returned_objects=[])
+    st_folium(m, width='100%', height='50vh', returned_objects=[])
 else:
     st.info("还没有任何目的地，去「计划去」或「已去」页面添加吧！")
 
@@ -221,12 +220,10 @@ if plan_places:
                 """, unsafe_allow_html=True)
             with col_b:
                 total = p['budget_food'] + p['budget_accommodation'] + p['budget_transport_big'] + p['budget_transport_small'] + p['budget_ticket']
-                st.markdown(f'<span style="font-weight:600;">¥ {total:,.0f}</span>', unsafe_allow_html=True)
+                st.markdown(f'<span class="budget">¥ {total:,.0f}</span>', unsafe_allow_html=True)
             with col_c:
                 if st.button("查看", key=f"view_plan_{p['id']}"):
                     st.query_params['id'] = p['id']
-                    st.switch_page("pages/计划去.py")  # 注意：此处应跳转到详情页，但详情页是"详情.py"
-                    # 修正：应该跳转到 "pages/详情.py"
                     st.switch_page("pages/详情.py")
 else:
     st.caption("暂无计划，去「计划去」页面添加吧。")
