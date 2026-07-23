@@ -1,0 +1,8 @@
+streamlit>=1.36.0
+folium>=0.15.0
+streamlit-folium>=0.18.0
+geopy>=2.4.0
+pandas>=2.0.0
+fpdf>=1.7.2
+supabase>=2.0.0
+python-dotenv>=1.0.0   # 可选，本地开发使用 .env
