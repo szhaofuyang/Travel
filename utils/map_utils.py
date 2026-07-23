@@ -6,6 +6,7 @@ import time
 from utils.db import get_cached_coords, save_cached_coords
 
 def geocode_city(city_name):
+    """根据城市名获取经纬度，优先从缓存读取，否则调用 API"""
     if not city_name:
         return None, None
     key = city_name.strip()
@@ -15,7 +16,7 @@ def geocode_city(city_name):
     if lat is not None and lng is not None:
         return lat, lng
     
-    # 调用 API
+    # 调用 Nominatim
     geolocator = Nominatim(user_agent="travel_budget_app")
     try:
         location = geolocator.geocode(key, timeout=5)
@@ -37,14 +38,27 @@ def geocode_city(city_name):
         return None, None
 
 def generate_map(places, highlight_status=None):
-    # 确定中心
-    center_lat, center_lng = 30.0, 105.0
-    for p in places:
-        if p['lat'] is not None and p['lng'] is not None:
-            center_lat, center_lng = p['lat'], p['lng']
-            break
+    """
+    生成中国地图，中心固定为中国，缩放级别为4。
+    places: 数据库行列表（包含 lat, lng, status, name, city）
+    highlight_status: 如果指定，则只显示该状态的点，否则全部显示
+    """
+    # 固定中国中心
+    center_lat, center_lng = 35.0, 105.0
+    zoom_start = 4  # 显示中国全境
     
-    m = folium.Map(location=[center_lat, center_lng], zoom_start=5, control_scale=True)
+    # 创建地图
+    m = folium.Map(
+        location=[center_lat, center_lng],
+        zoom_start=zoom_start,
+        control_scale=True,
+        min_zoom=3,
+        max_zoom=10  # 限制缩放范围，避免过于放大
+    )
+    
+    # 添加中国地图背景（可选，folium 默认是 OpenStreetMap，已包含中国）
+    # 可以添加一个 tile layer 更清晰，但默认可接受
+    
     color_map = {'plan': '#007aff', 'visited': '#34c759'}
     
     for p in places:
@@ -62,4 +76,5 @@ def generate_map(places, highlight_status=None):
             icon=folium.Icon(color=color, icon='circle', prefix='fa'),
             tooltip=p['name']
         ).add_to(m)
+    
     return m
